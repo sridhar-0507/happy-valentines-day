@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Valentine Surprise</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+* {
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(135deg, #fbc2eb, #a6c1ee);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.container {
+  background: rgba(255,255,255,0.95);
+  padding: 35px;
+  border-radius: 20px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+  text-align: center;
+  width: 90%;
+  max-width: 420px;
+  transition: all 0.8s ease;
+}
+
+.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.9);
+}
+
+button {
+  padding: 12px 30px;
+  border-radius: 999px;
+  border: none;
+  background: #ff7eb3;
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  box-shadow: 0 10px 25px rgba(255,126,179,0.4);
+}
+
+.buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+#noBtn {
+  background: #b388ff;
+}
+
+canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Reveal Area */
+#valentineReveal {
+  display: none;
+  margin-top: 25px;
+}
+
+/* Glowing Image */
+#valentineReveal img {
+  width: 100%;
+  max-width: 260px;
+  border-radius: 18px;
+  margin-bottom: 15px;
+  animation: glow 2s infinite alternate, popIn 0.6s ease forwards;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 15px #ff7eb3, 0 0 30px #ff7eb3;
+  }
+  to {
+    box-shadow: 0 0 25px #ff4f91, 0 0 50px #ff4f91;
+  }
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  70% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Typewriter */
+#typeText {
+  color: #ff4f91;
+  font-size: 1.2rem;
+  min-height: 2.5em;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="confetti"></canvas>
+<canvas id="sparkles"></canvas>
+
+<audio id="music" preload="auto"
+  src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_5e3d9bfb5c.mp3"></audio>
+<audio id="pop" preload="auto"
+  src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_1c3b36c6c3.mp3"></audio>
+<audio id="bang" preload="auto"
+  src="https://cdn.pixabay.com/download/audio/2022/01/18/audio_b7b9bcbf28.mp3"></audio>
+
+<!-- 404 Screen -->
+<div class="container" id="errorScreen">
+  <h1>404</h1>
+  <p>Oops! Page Not Found 💔</p>
+  <button id="refreshBtn">Refresh</button>
+</div>
+
+<!-- Valentine Screen -->
+<div class="container hidden" id="valentineScreen">
+  <h1 id="title">Will you be my Valentine? 💘</h1>
+
+  <div class="buttons" id="buttons">
+    <button id="yesBtn">YES</button>
+    <button id="noBtn">NO</button>
+  </div>
+
+  <div id="valentineReveal">
+    <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=800">
+    <div id="typeText"></div>
+  </div>
+</div>
+
+<script>
+const errorScreen = document.getElementById('errorScreen');
+const valentineScreen = document.getElementById('valentineScreen');
+const refreshBtn = document.getElementById('refreshBtn');
+const yesBtn = document.getElementById('yesBtn');
+const noBtn = document.getElementById('noBtn');
+const buttons = document.getElementById('buttons');
+const reveal = document.getElementById('valentineReveal');
+const typeText = document.getElementById('typeText');
+const title = document.getElementById('title');
+
+const music = document.getElementById('music');
+const pop = document.getElementById('pop');
+const bang = document.getElementById('bang');
+
+const noMessages = [
+  "Wait… what if this makes you smile? 😏",
+  "Okay but hear me out… 💭",
+  "Just imagine how cute this could be 💖",
+  "This button wouldn’t run if it wasn’t worth it 👀",
+  "Your future self is already smiling 🥰",
+  "I promise there’s something special behind YES ✨",
+  "Don’t you want to see what happens next? 😌",
+  "This is your sign… yes, THIS one 💫",
+  "Curiosity looks good on you 😘",
+  "Alright… I might be falling here ❤️",
+  "You’re still here… that means something 💞",
+  "At this point, we both know the answer 😭❤️"
+];
+
+let noClicks = 0;
+
+// 404 → Valentine
+refreshBtn.onclick = () => {
+  errorScreen.classList.add('hidden');
+  setTimeout(() => valentineScreen.classList.remove('hidden'), 500);
+};
+
+// YES
+yesBtn.onclick = () => {
+  music.play();
+  pop.play();
+  setTimeout(() => bang.play(), 300);
+
+  if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+
+  reveal.style.display = 'block';
+  typeWriter("Happy Valentine’s Day, my dear love ❤️");
+
+  setTimeout(() => {
+    buttons.style.opacity = 0;
+    buttons.style.pointerEvents = 'none';
+  }, 1000);
+
+  startConfetti(5000);
+  sparkleBurst();
+};
+
+// NO
+noBtn.onclick = () => {
+  noBtn.style.position = 'fixed';
+  noBtn.style.left = Math.random() * (innerWidth - 120) + 'px';
+  noBtn.style.top = Math.random() * (innerHeight - 60) + 'px';
+
+  title.textContent =
+    noMessages[Math.min(noClicks, noMessages.length - 1)];
+
+  yesBtn.style.transform = `scale(${1 + noClicks * 0.04})`;
+
+  noClicks++;
+};
+
+// Typewriter
+function typeWriter(text, i = 0) {
+  if (i < text.length) {
+    typeText.textContent += text.charAt(i);
+    setTimeout(() => typeWriter(text, i + 1), 70);
+  }
+}
+
+// Confetti
+const canvas = document.getElementById('confetti');
+const ctx = canvas.getContext('2d');
+canvas.width = innerWidth;
+canvas.height = innerHeight;
+
+function startConfetti(duration) {
+  const hearts = Array.from({length:120}, () => ({
+    x: Math.random()*canvas.width,
+    y: Math.random()*canvas.height - canvas.height,
+    s: Math.random()*12+10,
+    v: Math.random()*3+2
+  }));
+
+  const start = Date.now();
+  (function anim(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    hearts.forEach(h=>{
+      h.y+=h.v;
+      drawHeart(h.x,h.y,h.s);
+    });
+    if(Date.now()-start<duration) requestAnimationFrame(anim);
+  })();
+}
+
+function drawHeart(x,y,s){
+  ctx.fillStyle="#ff4f91";
+  ctx.beginPath();
+  ctx.moveTo(x,y);
+  ctx.bezierCurveTo(x-s/2,y-s/2,x-s,y+s/3,x,y+s);
+  ctx.bezierCurveTo(x+s,y+s/3,x+s/2,y-s/2,x,y);
+  ctx.fill();
+}
+
+// Sparkles
+const sCanvas = document.getElementById('sparkles');
+const sCtx = sCanvas.getContext('2d');
+sCanvas.width = innerWidth;
+sCanvas.height = innerHeight;
+
+function sparkleBurst() {
+  const sparks = Array.from({length:80}, () => ({
+    x: innerWidth/2,
+    y: innerHeight/2,
+    vx: (Math.random()-0.5)*6,
+    vy: (Math.random()-0.5)*6,
+    life: 60
+  }));
+
+  (function anim(){
+    sCtx.clearRect(0,0,sCanvas.width,sCanvas.height);
+    sparks.forEach(p=>{
+      p.x+=p.vx;
+      p.y+=p.vy;
+      p.life--;
+      sCtx.fillStyle=`rgba(255,215,0,${p.life/60})`;
+      sCtx.fillRect(p.x,p.y,3,3);
+    });
+    if(sparks.some(p=>p.life>0)) requestAnimationFrame(anim);
+    else sCtx.clearRect(0,0,sCanvas.width,sCanvas.height);
+  })();
+}
+</script>
+
+</body>
+</html>
