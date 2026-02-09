@@ -4,77 +4,61 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Valentine Surprise</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
-* {
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
-}
+* { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
 
 body {
   margin: 0;
   height: 100vh;
   background: linear-gradient(135deg, #fbc2eb, #a6c1ee);
-  display: flex;
-  justify-content: center;
-  align-items: center;
   overflow: hidden;
+  text-align: center;
 }
 
 .container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background: rgba(255,255,255,0.95);
-  padding: 35px;
+  padding: 30px 20px;
   border-radius: 20px;
   box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-  text-align: center;
   width: 90%;
   max-width: 420px;
-  transition: all 0.8s ease;
+  text-align: center;
 }
 
-.hidden {
-  opacity: 0;
-  pointer-events: none;
-  transform: scale(0.9);
-}
-
-button {
-  padding: 12px 30px;
-  border-radius: 999px;
-  border: none;
-  background: #ff7eb3;
-  color: white;
-  cursor: pointer;
-  font-size: 1rem;
-  box-shadow: 0 10px 25px rgba(255,126,179,0.4);
-}
+.hidden { opacity: 0; pointer-events: none; transform: scale(0.9); }
 
 .buttons {
   display: flex;
-  gap: 15px;
+  flex-wrap: wrap;
   justify-content: center;
+  gap: 15px;
   margin-top: 20px;
+  position: relative;
 }
 
-#noBtn {
-  background: #b388ff;
+button {
+  padding: 12px 25px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  min-width: 100px;
+  color: white;
+  box-shadow: 0 10px 25px rgba(255,126,179,0.4);
+  transition: all 0.3s ease;
 }
 
-canvas {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-}
+#yesBtn { background: #ff7eb3; }
+#noBtn { background: #b388ff; }
 
-/* Reveal Area */
-#valentineReveal {
-  display: none;
-  margin-top: 25px;
-}
+#valentineReveal { display: none; margin-top: 25px; }
 
-/* Glowing Image */
 #valentineReveal img {
   width: 100%;
   max-width: 260px;
@@ -83,13 +67,16 @@ canvas {
   animation: glow 2s infinite alternate, popIn 0.6s ease forwards;
 }
 
+#typeText {
+  color: #ff4f91;
+  font-size: 1.2rem;
+  min-height: 2.5em;
+  word-wrap: break-word;
+}
+
 @keyframes glow {
-  from {
-    box-shadow: 0 0 15px #ff7eb3, 0 0 30px #ff7eb3;
-  }
-  to {
-    box-shadow: 0 0 25px #ff4f91, 0 0 50px #ff4f91;
-  }
+  from { box-shadow: 0 0 15px #ff7eb3, 0 0 30px #ff7eb3; }
+  to { box-shadow: 0 0 25px #ff4f91, 0 0 50px #ff4f91; }
 }
 
 @keyframes popIn {
@@ -98,11 +85,20 @@ canvas {
   100% { transform: scale(1); opacity: 1; }
 }
 
-/* Typewriter */
-#typeText {
-  color: #ff4f91;
-  font-size: 1.2rem;
-  min-height: 2.5em;
+@media (max-width:480px){
+  .container { padding: 25px 15px; }
+  h1 { font-size: 1.6rem; }
+  button { font-size: 0.9rem; padding: 10px 20px; }
+  #valentineReveal img { max-width: 200px; }
+  #typeText { font-size: 1rem; }
+}
+
+canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
 }
 </style>
 </head>
@@ -112,12 +108,9 @@ canvas {
 <canvas id="confetti"></canvas>
 <canvas id="sparkles"></canvas>
 
-<audio id="music" preload="auto"
-  src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_5e3d9bfb5c.mp3"></audio>
-<audio id="pop" preload="auto"
-  src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_1c3b36c6c3.mp3"></audio>
-<audio id="bang" preload="auto"
-  src="https://cdn.pixabay.com/download/audio/2022/01/18/audio_b7b9bcbf28.mp3"></audio>
+<audio id="music" preload="auto" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_5e3d9bfb5c.mp3"></audio>
+<audio id="pop" preload="auto" src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_1c3b36c6c3.mp3"></audio>
+<audio id="bang" preload="auto" src="https://cdn.pixabay.com/download/audio/2022/01/18/audio_b7b9bcbf28.mp3"></audio>
 
 <!-- 404 Screen -->
 <div class="container" id="errorScreen">
@@ -136,7 +129,7 @@ canvas {
   </div>
 
   <div id="valentineReveal">
-    <img src="val.jpeg">
+    <img src="val.jpeg" alt="Valentine">
     <div id="typeText"></div>
   </div>
 </div>
@@ -197,21 +190,59 @@ yesBtn.onclick = () => {
 
   startConfetti(5000);
   sparkleBurst();
+
+  // Open WhatsApp with prefilled message
+  //const message = encodeURIComponent("I love you ❤️");
+  //const whatsappURL = `https://wa.me/?text=${message}`;
+  //window.open(whatsappURL, "_blank");
 };
 
-// NO
-noBtn.onclick = () => {
-  noBtn.style.position = 'fixed';
-  noBtn.style.left = Math.random() * (innerWidth - 120) + 'px';
-  noBtn.style.top = Math.random() * (innerHeight - 60) + 'px';
+// NO button smooth dodge + scaling + avoid overlapping YES
+function moveNoBtn() {
+  const btnWidth = noBtn.offsetWidth;
+  const btnHeight = noBtn.offsetHeight;
+  const yesRect = yesBtn.getBoundingClientRect();
+  const containerRect = valentineScreen.getBoundingClientRect();
 
-  title.textContent =
-    noMessages[Math.min(noClicks, noMessages.length - 1)];
+  let left, top;
+  let tries = 0;
 
-  yesBtn.style.transform = `scale(${1 + noClicks * 0.04})`;
+  do {
+    left = Math.random() * (containerRect.width - btnWidth);
+    top = Math.random() * (containerRect.height - btnHeight);
+    tries++;
+  } while (
+    left < yesRect.right - containerRect.left &&
+    left + btnWidth > yesRect.left - containerRect.left &&
+    top < yesRect.bottom - containerRect.top &&
+    top + btnHeight > yesRect.top - containerRect.top &&
+    tries < 100
+  );
+
+  noBtn.style.position = 'absolute';
+  noBtn.style.left = left + 'px';
+  noBtn.style.top = top + 'px';
+
+  // Display no message, stick to last if exceeded
+  const msgIndex = Math.min(noClicks, noMessages.length - 1);
+  title.textContent = noMessages[msgIndex];
+
+  // Scale YES button up
+  yesBtn.style.transform = `scale(${1 + noClicks * 0.05})`;
+
+  // Shrink NO button after last message
+  if (noClicks >= noMessages.length - 1) {
+    const shrinkAmount = Math.pow(0.95, noClicks - noMessages.length + 2);
+    noBtn.style.transform = `scale(${shrinkAmount})`;
+  } else {
+    noBtn.style.transform = `scale(1)`;
+  }
 
   noClicks++;
-};
+}
+
+noBtn.onclick = moveNoBtn;
+noBtn.ontouchstart = moveNoBtn;
 
 // Typewriter
 function typeWriter(text, i = 0) {
@@ -287,5 +318,3 @@ function sparkleBurst() {
 
 </body>
 </html>
-
-
